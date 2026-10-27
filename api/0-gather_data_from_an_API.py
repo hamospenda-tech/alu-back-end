@@ -6,18 +6,14 @@ import sys
 if __name__ == "__main__":
     employee_id = int(sys.argv[1])
     base_url = "https://jsonplaceholder.typicode.com"
-    headers = {"User-Agent": "Mozilla/5.0"}
 
-    user = requests.get(
-        f"{base_url}/users/{employee_id}", headers=headers
-    ).json()
+    user = requests.get("{}/users/{}".format(base_url, employee_id)).json()
     todos = requests.get(
-        f"{base_url}/todos", params={"userId": employee_id}, headers=headers
-    ).json()
+        "{}/todos?userId={}".format(base_url, employee_id)).json()
 
-    done_titles = [t["title"] for t in todos if t.get("completed")]
+    done_titles = [t["title"] for t in todos if t["completed"]]
 
     print("Employee {} is done with tasks({}/{}):".format(
-        user.get("name"), len(done_titles), len(todos)))
+        user["name"], len(done_titles), len(todos)))
     for title in done_titles:
         print("\t {}".format(title))
