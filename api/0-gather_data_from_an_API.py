@@ -7,27 +7,30 @@ import requests
 import sys
 
 
-API_URL = "https://jsonplaceholder.typicode.com"
+USERS_URL = "https://jsonplaceholder.typicode.com/users"
+TODOS_URL = "https://jsonplaceholder.typicode.com/todos"
 
 
 def get_todo_progress(employee_id):
     """Print the TODO list progress of the employee with the given ID."""
-    user = requests.get("{}/users/{}".format(API_URL, employee_id)).json()
-    todos = requests.get(
-        "{}/todos".format(API_URL), params={"userId": employee_id}
-    ).json()
+    users = requests.get(USERS_URL).json()
+    todos = requests.get(TODOS_URL).json()
 
-    employee_name = user.get("name")
-    done_tasks = [task for task in todos if task.get("completed")]
+    employee_name = None
+    for user in users:
+        if user.get("id") == employee_id:
+            employee_name = user.get("name")
+
+    employee_todos = [
+        task for task in todos if task.get("userId") == employee_id
+    ]
+    done_tasks = [task for task in employee_todos if task.get("completed")]
 
     print("Employee {} is done with tasks({}/{}):".format(
-        employee_name, len(done_tasks), len(todos)))
+        employee_name, len(done_tasks), len(employee_todos)))
     for task in done_tasks:
         print("\t {}".format(task.get("title")))
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2 or not sys.argv[1].isdigit():
-        print("Usage: {} <employee_id>".format(sys.argv[0]))
-        sys.exit(1)
     get_todo_progress(int(sys.argv[1]))
